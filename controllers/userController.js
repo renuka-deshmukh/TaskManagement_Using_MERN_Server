@@ -3,8 +3,12 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
+
+const baseURL = 'http://localhost:3000/download/'
+
 async function register(req, res){
     const {name, email, password} = req.body;
+    const avatar = req.file ? req.file.filename : null
     try {
         const existUser = await User.findOne({email});
         if(existUser) return res.status(400).json({message: "Email already used"});
@@ -12,7 +16,7 @@ async function register(req, res){
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
 
-        const newUser = await User.create({name, email, password:hashPassword});
+        const newUser = await User.create({name, email, password:hashPassword, avatar});
         await newUser.save();
 
         console.log(newUser, "newUser")
@@ -51,15 +55,21 @@ async function getUserInfo(req, res) {
     const Userid = req.user._id
   try {
     const userInfo = await User.findOne({_id:Userid})
+
+      const updateUser = {
+            _id: userInfo._id,
+            name: userInfo.userName,
+            email: userInfo.email,
+            role : userInfo.role,
+            avatar: userInfo.avatar ? `${baseURL}${userInfo.avatar}` : ''
+        }
     console.log(userInfo,"userInfo")
-    res.status(200).json({userInfo:userInfo})
+    res.status(200).json({userInfo:updateUser})
   } catch (error) {
     console.error("createUser error", error);
     res.status(500).json({ message: "Server error" });
   }
 }
-
-
 
 
 module.exports = {
