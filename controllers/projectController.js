@@ -16,8 +16,8 @@ async function getAllProjects(req, res){
 async function getProjectById(req, res){
     const id = req.params.id
     try {
-        const project = await Project.findById(id)
-        if(!project) return res.status(400).json({msg: "project not found" , success:false})
+        const project = await Project.findOne({_id:id})
+        if(!project) return res.status(404).json({msg: "project not found" , success:false})
         
         res.status(200).json({project:project , success: true})    
         
@@ -32,7 +32,8 @@ async function createProject (req, res){
     const { name, description, startDate, endDate, addedBy } = req.body;
     try {
         const newProject = await Project.create({ name, description, startDate, endDate, addedBy });
-        res.status(200).json({newProject: newProject, success: true })
+        await newProject.save()
+        res.status(200).json({ message: "Project added  successfully", success: true })
                                                     
     } catch (error) {
          console.error("createProject error", error);
@@ -42,24 +43,20 @@ async function createProject (req, res){
 }
 
 async function updateProject(req, res) {
-  const { name, description, startDate, endDate, status, addedBy } = req.body;
+  const { name, description, startDate, endDate } = req.body;
   const id = req.params.id;
 
   try {
     const updatedProject = await Project.findByIdAndUpdate(
-      id,
-      { name, description, startDate, endDate, status, addedBy },
-      { new: true } // return updated document
+      {_id:id},
+      { name, description, startDate, endDate },
+      { new: true }
     );
+    updatedProject.save()
 
-    if (!updatedProject) {
-      return res.status(404).json({ msg: "Project not found" });
-    }
-
-    return res.status(200).json({
-      msg: "Project updated successfully",
-      updatedProject,
-      success: true,
+    if (!updatedProject) return res.status(404).json({ message: "Project not found" });
+    
+    res.status(200).json({msg: "Project updated successfully", success: true,
     });
   } catch (error) {
     console.error("updateProject error:", error.message);
@@ -67,38 +64,13 @@ async function updateProject(req, res) {
   }
 }
 
-//  async function updateProject (req, res){
-//      const { name, description, startDate, endDate, status,  addedBy } = req.body;
-//      const id = req.params.id
-//    try{
 
-//     const updateProject = await Project.findByIdAndUpdate(id, {name, description, startDate, endDate, status,  addedBy}, { new: true })
-//     console.log(updateProject, "+++++++++++++++")
-//     if(!updateProject){
-//      res.status(200).json({msg:"Project not found"})
-//     }
-//      return res.status(200).json({
-//       msg: "Project updated successfully",
-//       updateProject,
-//       success: true
-//     });
-
-//     } catch (error) {
-//          console.error("updateProject error", error);
-//     res.status(500).json({ message: "Server error" });
-//     }
-
-// }
 
  async function deleteProject (req, res){
     const id = req.params.id;
     try {
-        const deleteProject = await Project.findByIdAndDelete({id:id})
-        if(deleteProject){
-            res.status(200).json({msg:"Project deleted successfully"})
-        }else{
-            res.status(404).json({msg:"Project not found"})
-        }
+        const deleteProject = await Project.findByIdAndDelete({_id:id})
+        res.status(200).json({msg:"Project deleted successfully"})
         
     } catch (error) {
          console.error("deleteProject error", error);
