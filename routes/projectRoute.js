@@ -7,8 +7,10 @@ const router = express.Router()
 router.get('/getAllProjects', projectController.getAllProjects)
 router.get('/getProjectById/:id', projectController.getProjectById)
 router.post('/createProject', protect, adminOnly, projectController.createProject)
-router.put('/updateProject/:id',protect, adminOnly, projectController.updateProject)
+router.put('/updateProject/:id',protect, adminOnly, projectController.updatedProject)
 router.delete('/deleteProject/:id',protect, adminOnly, projectController.deleteProject)
+
+router.patch('/updateProjectStatus/:id',protect, adminOnly, projectController.updateProjectStatusById)
 
 module.exports = router
 

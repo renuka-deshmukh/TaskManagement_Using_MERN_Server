@@ -35,7 +35,7 @@ async function login(req, res){
         if(!loggedUser) return res.status(200).json({message:"User not found"})
 
         const isMatch = await bcrypt.compare(password, loggedUser.password)
-        if(!isMatch) return res.status(200).json({message:"Invalid Password"})
+        if(!isMatch) return res.status(400).json({message:"Invalid Password"})
 
         const token = jwt.sign({ _id: loggedUser._id, role: loggedUser.role }, process.env.SECREATE_KEY, { expiresIn: '1d'})    
          res.status(202).json({

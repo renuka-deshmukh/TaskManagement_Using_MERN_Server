@@ -42,34 +42,37 @@ async function createProject (req, res){
 
 }
 
-async function updateProject(req, res) {
-  const { name, description, startDate, endDate } = req.body;
+async function updatedProject(req, res) {
+  console.log("Update request:", req.body, "ID:", req.params.id);
+  const { name, description, startDate, endDate, status } = req.body;
   const id = req.params.id;
 
   try {
     const updatedProject = await Project.findByIdAndUpdate(
-      {_id:id},
-      { name, description, startDate, endDate },
-      { new: true }
+      id,
+      { name, description, startDate, endDate, status },
+      { new: true, runValidators: true }
     );
-    updatedProject.save()
 
-    if (!updatedProject) return res.status(404).json({ message: "Project not found" });
-    
-    res.status(200).json({msg: "Project updated successfully", success: true,
+    if (!updatedProject) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.status(200).json({
+      msg: "Project updated successfully",
+      project: updatedProject,
+      success: true,
     });
   } catch (error) {
-    console.error("updateProject error:", error.message);
-    return res.status(500).json({ message: "Server error" });
+    console.error("updateProject error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 }
-
-
 
  async function deleteProject (req, res){
     const id = req.params.id;
     try {
-        const deleteProject = await Project.findByIdAndDelete({_id:id})
+        const deleteProject = await Project.findByIdAndDelete(id)
         res.status(200).json({msg:"Project deleted successfully"})
         
     } catch (error) {
@@ -79,10 +82,29 @@ async function updateProject(req, res) {
 
 }
 
+async function updateProjectStatusById(req, res){
+    const id = req.params.id
+    const {status} = req.body
+    try {
+        const ProjectForUpdateStatus = await Project.findById(id)
+        if(!ProjectForUpdateStatus) return res.status(404).json({message:"Project not found"})
+
+        const updateStatus = await Project.findByIdAndUpdate(id, {status}, {new: true})
+        res.status(200).json({message:"Project status updated successfully "})
+        
+    } catch (error) {
+         console.error("statusUpdating error", error);
+    res.status(500).json({ message: "Server error" });
+    }
+}
+
+
+
 module.exports = {
     getAllProjects,
     getProjectById,
     createProject,
-    updateProject, 
-    deleteProject
+    updatedProject, 
+    deleteProject,
+    updateProjectStatusById
 }

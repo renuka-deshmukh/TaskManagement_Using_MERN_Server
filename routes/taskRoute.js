@@ -10,6 +10,12 @@ router.post('/createTask', protect, adminOnly, taskController.createTask)
 router.put('/updateTask/:id',protect, adminOnly, taskController.updateTask)
 router.delete('/deleteTask/:id',protect, adminOnly, taskController.deleteTask)
 
+router.patch('/updateTaskStatus/:id', protect, adminOnly,taskController.updateTaskStatus)
+
+router.get('/getTasksByProject/:id', taskController.getTasksByProject)
+router.get('/getTasksByAssigned/:id', taskController.getTaksByAssigned)
+router.get('/getTasksByCreatedUser/:id', taskController.getTasksByCreatedUser)
+
 module.exports = router
 
 
