@@ -5,8 +5,9 @@ const User = require('../models/userModel')
 async function getAllTasks(req, res) {
 
   try {
-    const tasks = await Task.find()
-    res.status(200).json({ tasks: tasks })
+    const tasks = await Task.find().populate("projectId", "name")
+      .populate("assignTo", "name");
+    res.status(200).json({ tasks: tasks, success: true })
 
   } catch (error) {
     console.error(" getAllTasks error", error);
@@ -38,8 +39,8 @@ async function createTask(req, res) {
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    const assignedUser = await User.findById(assignTo);
-    if (!assignedUser) return res.status(404).json({ message: "Assigned user not found" });
+    // const assignedUser = await User.findById(assignTo);
+    // if (!assignedUser) return res.status(404).json({ message: "Assigned user not found" });
     const newTask = await Task.create({
       title, description, startDate, endDate, addedBy, projectId, assignTo, status, priority
     });
@@ -81,7 +82,7 @@ async function deleteTask(req, res) {
   try {
     const id = req.params.id;
     const deleteTask = await Task.findByIdAndDelete({ _id: id })
-    res.status(200).json({ msg: "Task deleted successfully" })
+    res.status(200).json({ msg: "Task deleted successfully", success: true })
 
   } catch (error) {
     console.error("deleteTask error", error);
@@ -89,64 +90,64 @@ async function deleteTask(req, res) {
   }
 }
 
-async function updateTaskStatus(req, res){
-     const id = req.params.id
-     const {status} = req.body
-       try {
-        const taskToUpdateStatus = await Task.findById(id)
-        if(!taskToUpdateStatus) return res.status(404).json({message:"Task not found"})
-        
-        const updateTaskStatus = await Task.findByIdAndUpdate(id, {status}, {new:true})
-        res.status(200).json({message:"Task status updated successfully"})  
-        
-       } catch (error) {
-          console.error(" updateTaskStatus error", error);
-          res.status(500).json({ message: "Server error" });
-       }
+async function updateTaskStatus(req, res) {
+  const id = req.params.id
+  const { status } = req.body
+  try {
+    const taskToUpdateStatus = await Task.findById(id)
+    if (!taskToUpdateStatus) return res.status(404).json({ message: "Task not found" })
+
+    const updateTaskStatus = await Task.findByIdAndUpdate(id, { status }, { new: true })
+    res.status(200).json({ message: "Task status updated successfully" })
+
+  } catch (error) {
+    console.error(" updateTaskStatus error", error);
+    res.status(500).json({ message: "Server error" });
+  }
 }
 
-async function getTasksByProject(req, res){
-   const projectId = req.params.id
+async function getTasksByProject(req, res) {
+  const projectId = req.params.id
 
-   try {
+  try {
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    const tasks = await Task.find({projectId})
-    res.status(200).json({tasks, success: true})
-    
-   } catch (error) {
-      console.error(" getting tasks error", error);
-      res.status(500).json({ message: "Server error" });
-   }
+    const tasks = await Task.find({ projectId })
+    res.status(200).json({ tasks, success: true })
+
+  } catch (error) {
+    console.error(" getting tasks error", error);
+    res.status(500).json({ message: "Server error" });
+  }
 }
 
-async function getTaksByAssigned(req, res){
-   const assignTo = req.params.id
+async function getTaksByAssigned(req, res) {
+  const assignTo = req.params.id
 
-   try {
+  try {
     const user = await User.findById(assignTo);
-    if(!user) return res.ststus(404).json({message:"user not found"})
+    if (!user) return res.ststus(404).json({ message: "user not found" })
 
-      const tasks = await Task.find({assignTo})
-      res.status(200).json({ tasks:tasks, success: true})
-    
-   } catch (error) {
-      console.error(" getting tasks error", error);
-      res.status(500).json({ message: "Server error" });
-   }
+    const tasks = await Task.find({ assignTo })
+    res.status(200).json({ tasks: tasks, success: true })
+
+  } catch (error) {
+    console.error(" getting tasks error", error);
+    res.status(500).json({ message: "Server error" });
+  }
 }
 
-async function getTasksByCreatedUser(req, res){
-     const addedBy = req.params.id
-     try {
-       const tasks = await Task.find({addedBy})
-       res.status(200).json({ success: true, tasks})
+async function getTasksByCreatedUser(req, res) {
+  const addedBy = req.params.id
+  try {
+    const tasks = await Task.find({ addedBy })
+    res.status(200).json({ success: true, tasks })
 
-     } catch (error) {
-      console.error(" getting tasks error", error);
-      res.status(500).json({ message: "Server error" });
-     }
+  } catch (error) {
+    console.error(" getting tasks error", error);
+    res.status(500).json({ message: "Server error" });
+  }
 }
 
 module.exports = {
