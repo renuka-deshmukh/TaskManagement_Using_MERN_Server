@@ -55,13 +55,13 @@ async function createTask(req, res) {
 }
 
 async function updateTask(req, res) {
-  const { title, description, startDate, endDate, addedBy, projectId, assignTo } = req.body;
+  const { title, description, startDate, endDate, addedBy, projectId, assignTo, priority, status } = req.body;
   const id = req.params.id;
 
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       { _id: id },
-      { title, description, startDate, endDate, addedBy, projectId, assignTo },
+      { title, description, startDate, endDate, addedBy, projectId, assignTo, priority, status },
       { new: true }
     );
     updatedTask.save()
