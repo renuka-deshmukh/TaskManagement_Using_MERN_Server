@@ -7,26 +7,37 @@ require("dotenv").config();
 const baseURL = 'http://localhost:3000/download/'
 
 async function register(req, res) {
-    const { name, email, password } = req.body;
-    const avatar = req.file ? req.file.filename : null
-    try {
-        const existUser = await User.findOne({ email });
-        if (existUser) return res.status(400).json({ message: "Email already used" });
+  const { name, email, password } = req.body;
+  const avatar = req.file ? req.file.filename : null;
+  try {
+    const existUser = await User.findOne({ email });
+    if (existUser) return res.status(400).json({ msg: "Email already used" });
 
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
 
-        const newUser = await User.create({ name, email, password: hashPassword, avatar });
-        await newUser.save();
+    const newUser = await User.create({ name, email, password: hashPassword, avatar });
+    await newUser.save();
 
-        console.log(newUser, "newUser")
-        res.status(200).json({ message: "Register successfully" })
+    console.log(newUser, "newUser");
 
-    } catch (error) {
-        console.error('createUser error', error);
-        res.status(500).json({ message: "Server error" });
-    }
+    const avatarUrl = avatar ? `${baseURL}${avatar}` : "";
+
+    res.status(200).json({
+      msg: "Register successfully",
+      success: true,
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        avatar: avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error("createUser error", error);
+    res.status(500).json({ msg: "Server error" });
+  }
 }
+
 
 async function login(req, res) {
     const { email, password } = req.body;
@@ -38,15 +49,20 @@ async function login(req, res) {
         if (!isMatch) return res.status(400).json({ message: "Invalid Password" })
 
         const token = jwt.sign({ _id: loggedUser._id, role: loggedUser.role }, process.env.SECREATE_KEY, { expiresIn: '1d' })
+        
+        const avatarUrl = loggedUser.avatar
+            ? `${baseURL}${loggedUser.avatar}`
+            : "";
+
         res.status(202).json({
+            success: true,
             msg: "Login Successfull",
             token: token,
-            success: true,
             name: loggedUser.name,
             user_id: loggedUser._id,
-            role: loggedUser.role
+            role: loggedUser.role,
+            avatar: avatarUrl,
         });
-
     } catch (error) {
         console.error('createUser error', error);
         res.status(500).json({ message: "Server error" });
@@ -67,7 +83,7 @@ async function getUserInfo(req, res) {
             avatar: userInfo.avatar ? `${baseURL}${userInfo.avatar}` : ''
         }
         console.log(userInfo, "userInfo")
-        res.status(200).json({ userInfo: updateUser })
+        res.status(200).json({ userInfo: updateUser, success: true })
     } catch (error) {
         console.error("createUser error", error);
         res.status(500).json({ message: "Server error" });
@@ -77,11 +93,11 @@ async function getUserInfo(req, res) {
 async function getAllUsers(req, res) {
     try {
         const users = await User.find()
-        res.status(200).json({users:users , success: true})       
+        res.status(200).json({ users: users, success: true })
     } catch (error) {
         console.error("getting task error", error);
         res.status(500).json({ message: "Server error" });
-    }    
+    }
 }
 
 

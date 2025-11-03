@@ -42,8 +42,8 @@ async function createTask(req, res) {
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    // const assignedUser = await User.findById(assignTo);
-    // if (!assignedUser) return res.status(404).json({ message: "Assigned user not found" });
+    const assignedUser = await User.findById(assignTo);
+    if (!assignedUser) return res.status(404).json({ message: "Assigned user not found" });
     const newTask = await Task.create({
       title, description, startDate, endDate, addedBy, projectId, assignTo, status, priority
     });
