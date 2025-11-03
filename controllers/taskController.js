@@ -35,6 +35,9 @@ async function createTask(req, res) {
   const { title, description, startDate, endDate, projectId, assignTo, status, priority } = req.body;
   const addedBy = req.user.id;
   try {
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      return res.status(400).json({ success: false, msg: "End date cannot be before start date" });
+    }
 
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
