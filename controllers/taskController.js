@@ -67,7 +67,7 @@ async function updateTask(req, res) {
       { title, description, startDate, endDate, addedBy, projectId, assignTo, priority, status },
       { new: true }
     );
-    updatedTask.save()
+    
 
     if (!updatedTask) return res.status(404).json({ message: "Task not found" });
 
