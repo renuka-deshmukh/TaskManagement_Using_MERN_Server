@@ -50,8 +50,6 @@ async function login(req, res) {
 
         const token = jwt.sign({ _id: loggedUser._id, role: loggedUser.role }, process.env.SECREATE_KEY, { expiresIn: '1d' })
 
-
-
         res.status(202).json({
             success: true,
             msg: "Login Successfull",
@@ -75,7 +73,7 @@ async function getUserInfo(req, res) {
 
         const updateUser = {
             _id: userInfo._id,
-            name: userInfo.userName,
+            name: userInfo.name,
             email: userInfo.email,
             role: userInfo.role,
             avatar: userInfo.avatar ? `${baseURL}${userInfo.avatar}` : ''

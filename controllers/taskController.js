@@ -67,7 +67,7 @@ async function updateTask(req, res) {
       { title, description, startDate, endDate, addedBy, projectId, assignTo, priority, status },
       { new: true }
     );
-    
+
 
     if (!updatedTask) return res.status(404).json({ message: "Task not found" });
 
@@ -101,13 +101,37 @@ async function updateTaskStatus(req, res) {
     if (!taskToUpdateStatus) return res.status(404).json({ message: "Task not found" })
 
     const updateTaskStatus = await Task.findByIdAndUpdate(id, { status }, { new: true })
-    res.status(200).json({ message: "Task status updated successfully" })
+    res.status(200).json({
+      success: true,
+      message: "Task status updated successfully",
+      updatedTask: updateTaskStatus
+    });
 
   } catch (error) {
     console.error(" updateTaskStatus error", error);
     res.status(500).json({ message: "Server error" });
   }
 }
+
+async function getTasksOfUser(req, res) {
+  const userId = req.user._id
+
+  try {
+
+    const usersTasks = await Task.find({ assignTo: userId })
+      .populate("projectId", "name")
+      .populate("addedBy", "name email")
+      .populate("assignTo", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ usersTasks, success: true });
+  } catch (error) {
+    console.error("updateTaskStatus error", error);
+    res.status(500).json({ message: "Server error" });
+  }
+
+}
+
 
 async function getTasksByProject(req, res) {
   const projectId = req.params.id
@@ -125,7 +149,7 @@ async function getTasksByProject(req, res) {
   }
 }
 
-async function getTaksByAssigned(req, res) {
+async function getTasksByAssigned(req, res) {
   const assignTo = req.params.id
 
   try {
@@ -155,5 +179,5 @@ async function getTasksByCreatedUser(req, res) {
 
 module.exports = {
   createTask, getAllTasks, getTaskById, updateTask, deleteTask, updateTaskStatus, getTasksByProject,
-  getTaksByAssigned, getTasksByCreatedUser
+  getTasksByAssigned, getTasksByCreatedUser, getTasksOfUser
 }
