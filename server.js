@@ -6,18 +6,19 @@ const taskRoute = require('./routes/taskRoute')
 const connectDB = require('./config/db')
 const path = require('path')
 const app = express()
-const port = 3000
 
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 
-connectDB()
-// app.get('/', (req, res) => res.send('Hello World!'))
+connectDB();
 
-app.use('/user', userRoute)
-app.use('/download', express.static(path.join('uploads')) )
-app.use('/project', projectRoute)
-app.use('/task', taskRoute)
+app.use('/user', userRoute);
+app.use('/download', express.static(path.join('uploads')));
+app.use('/project', projectRoute);
+app.use('/task', taskRoute);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+})
