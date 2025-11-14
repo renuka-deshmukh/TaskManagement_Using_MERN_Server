@@ -101,10 +101,36 @@ async function getAllUsers(req, res) {
     }
 }
 
+async function updateAvatar(req, res) {
+    try {
+        const userId = req.user._id;
+
+        const avatar = req.file ? req.file.filename : null;
+        if (!avatar) return res.status(400).json({ msg: "No file uploaded" });
+
+        const updated = await User.findByIdAndUpdate(
+            userId,
+            { avatar },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            msg: "Avatar updated",
+            avatar: `${baseURL}${updated.avatar}`
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Server error" });
+    }
+}
+
 
 module.exports = {
     register,
     login,
     getUserInfo,
-    getAllUsers
+    getAllUsers,
+    updateAvatar
 }
