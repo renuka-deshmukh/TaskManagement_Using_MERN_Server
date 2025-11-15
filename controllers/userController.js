@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
 
-const baseURL = 'http://localhost:3000/download/'
+const baseURL = 'http://localhost:7000/download/'
 
 async function register(req, res) {
     const { name, email, password } = req.body;
@@ -91,7 +91,7 @@ async function getAllUsers(req, res) {
         const users = await User.find()
         users.forEach(user => {
             if (user.avatar) {
-                user.avatar = `http://localhost:3000/download/${user.avatar}`;
+                user.avatar = `http://localhost:7000/download/${user.avatar}`;
             }
         });
         res.status(200).json({ users: users, success: true })
