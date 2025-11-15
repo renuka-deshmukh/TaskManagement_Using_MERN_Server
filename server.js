@@ -9,8 +9,17 @@ const app = express()
 
 const port = process.env.PORT || 3000;
 
+const allowedOrigins = [
+  "http://localhost:3000",                                     // Local frontend
+  "https://task-management-using-mern-admin.vercel.app/",      // Admin panel
+  "https://taskmanagementmemberpanel.vercel.app/"              // User panel
+];
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 connectDB();
 
